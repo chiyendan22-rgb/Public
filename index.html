@@ -2,121 +2,44 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Tranh Bá Vô Song</title>
-<style>
-body{margin:0;background:black;color:white;font-family:Arial}
-button,input{padding:8px;margin:4px}
-#login,#admin,#game{
-position:fixed;top:0;left:0;width:100%;height:100%;
-display:flex;flex-direction:column;align-items:center;justify-content:center
-}
-#admin,#game{display:none}
-.box{border:1px solid #555;padding:10px;margin:5px;width:90%}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- LOGIN -->
-<div id="login">
-<h1 style="color:red">TRANH BÁ VÔ SONG</h1>
-<input id="user" placeholder="Tài khoản">
-<input id="pass" type="password" placeholder="Mật khẩu">
-<button onclick="login()">ĐĂNG NHẬP</button>
-<div id="msg"></div>
+<!-- MÀN HÌNH GIỚI THIỆU -->
+<div id="intro">
+  <h1>TRANH BÁ VÔ SONG</h1>
+  <button onclick="startGame()">BẮT ĐẦU</button>
+  <button onclick="toggleSound()">CÀI ĐẶT</button>
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="admin">
-<h2>👑 ADMIN SERVER</h2>
-<div id="serverList"></div>
-<button onclick="addServer()">➕ Tạo server</button>
-<button onclick="resetServers()">🔄 Reset tất cả</button>
-<button onclick="logout()">Thoát</button>
+<!-- ĐĂNG NHẬP -->
+<div id="login">
+  <input id="email" placeholder="Tài khoản">
+  <input id="password" type="password" placeholder="Mật khẩu">
+  <button onclick="login()">ĐĂNG NHẬP</button>
 </div>
 
 <!-- GAME -->
-<div id="game">
-<h2>🎮 GAME ĐANG CHẠY</h2>
-<div id="info"></div>
-<button onclick="leave()">Rời server</button>
+<canvas id="game" width="1280" height="720"></canvas>
+
+<div id="ui-top">
+🪵<span id="wood">500</span>
+🪨<span id="stone">300</span>
+🪙<span id="gold">100</span>
+💎<span id="gem">5</span>
 </div>
 
-<script>
-/* ==== ADMIN INFO ==== */
-const ADMIN_USER="Anhtuan2708@";
-const ADMIN_PASS="tuan2708@";
+<div id="ui-bottom">
+<button onclick="openBuild()">Xây dựng</button>
+<button onclick="openArmy()">Lính</button>
+<button onclick="openAlliance()">Liên minh</button>
+</div>
 
-/* ==== DATA ==== */
-let servers = JSON.parse(localStorage.getItem("servers")) || [
- {id:1,players:0,active:true}
-];
-let currentServer=null;
-
-/* ==== LOGIN ==== */
-function login(){
- let u=user.value,p=pass.value;
- if(u===ADMIN_USER && p===ADMIN_PASS){
-  login.style.display="none";
-  admin.style.display="flex";
-  renderServers();
- }else{
-  joinServer();
- }
-}
-
-/* ==== SERVER LOGIC ==== */
-function renderServers(){
- let html="";
- servers.forEach(s=>{
-  html+=`<div class="box">
-   Server ${s.id} | 👥 ${s.players}/20 | ${s.active?"🟢":"🔴"}
-   <button onclick="closeServer(${s.id})">Đóng</button>
-  </div>`;
- });
- serverList.innerHTML=html;
- localStorage.setItem("servers",JSON.stringify(servers));
-}
-
-function addServer(){
- servers.push({id:servers.length+1,players:0,active:true});
- renderServers();
-}
-
-function closeServer(id){
- let s=servers.find(x=>x.id===id);
- if(s) s.active=false;
- renderServers();
-}
-
-function resetServers(){
- if(!confirm("Reset toàn bộ server?"))return;
- servers=[{id:1,players:0,active:true}];
- renderServers();
-}
-
-/* ==== PLAYER JOIN ==== */
-function joinServer(){
- let s=servers.find(x=>x.active && x.players<20);
- if(!s) return alert("Không có server trống");
- s.players++;
- currentServer=s;
- localStorage.setItem("servers",JSON.stringify(servers));
- login.style.display="none";
- game.style.display="flex";
- info.innerText=`Đang ở Server ${s.id} (${s.players}/20)`;
-}
-
-/* ==== LEAVE ==== */
-function leave(){
- currentServer.players--;
- localStorage.setItem("servers",JSON.stringify(servers));
- location.reload();
-}
-
-function logout(){
- location.reload();
-}
-</script>
+<script src="game.js"></script>
 </body>
 </html>
