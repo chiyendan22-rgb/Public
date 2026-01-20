@@ -1,44 +1,23 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Tranh Bá Vô Song</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Tranh Bá Vô Song</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- MÀN HÌNH GIỚI THIỆU -->
-<div id="intro">
-  <h1>TRANH BÁ VÔ SONG</h1>
-  <button onclick="startGame()">BẮT ĐẦU</button>
-  <button onclick="toggleSound()">CÀI ĐẶT</button>
+<div id="auth">
+  <h1 class="fire">TRANH BÁ VÔ SONG</h1>
+
+  <input id="user" placeholder="Tài khoản">
+  <input id="pass" type="password" placeholder="Mật khẩu">
+
+  <button onclick="login()">Đăng nhập</button>
+  <button onclick="register()">Đăng ký</button>
 </div>
 
-<!-- ĐĂNG NHẬP -->
-<div id="login">
-  <input id="email" placeholder="Tài khoản">
-  <input id="password" type="password" placeholder="Mật khẩu">
-  <button onclick="login()">ĐĂNG NHẬP</button>
-</div>
-
-<!-- GAME -->
-<canvas id="game" width="1280" height="720"></canvas>
-
-<div id="ui-top">
-🪵<span id="wood">500</span>
-🪨<span id="stone">300</span>
-🪙<span id="gold">100</span>
-💎<span id="gem">5</span>
-</div>
-
-<div id="ui-bottom">
-<button onclick="openBuild()">Xây dựng</button>
-<button onclick="openArmy()">Lính</button>
-<button onclick="openAlliance()">Liên minh</button>
-</div>
+<canvas id="map" width="900" height="600"></canvas>
 
 <script src="game.js"></script>
 </body>

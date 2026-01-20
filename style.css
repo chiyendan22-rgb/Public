@@ -1,54 +1,32 @@
-body {
-  margin: 0;
-  background: black;
-  color: white;
-  font-family: serif;
+body{
+  margin:0;
+  background:black;
+  color:white;
+  font-family:Arial;
+  text-align:center;
 }
 
-#intro {
-  position: fixed;
-  inset: 0;
-  background: black;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+#auth{
+  margin-top:100px;
 }
 
-#intro h1 {
-  color: red;
-  font-size: 60px;
-  text-shadow: 0 0 20px orange;
+input,button{
+  display:block;
+  margin:10px auto;
+  padding:10px;
+  font-size:16px;
 }
 
-#login {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.9);
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+canvas{
+  display:none;
+  background:#222;
+  margin:auto;
 }
 
-canvas {
-  display: none;
-  background: #2b2b2b;
-}
-
-#ui-top {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: #1a1a1a;
-  padding: 5px;
-}
-
-#ui-bottom {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #3a2a1a;
-  display: flex;
-  justify-content: space-around;
+.fire{
+  color:red;
+  text-shadow:
+    0 0 5px orange,
+    0 0 10px red,
+    0 0 20px yellow;
 }
