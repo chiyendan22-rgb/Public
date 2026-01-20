@@ -2,194 +2,121 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Tranh Bá Vô Song</title>
-
 <style>
-body{
-  margin:0;
-  background:black;
-  color:white;
-  font-family:Arial;
-  text-align:center;
+body{margin:0;background:black;color:white;font-family:Arial}
+button,input{padding:8px;margin:4px}
+#login,#admin,#game{
+position:fixed;top:0;left:0;width:100%;height:100%;
+display:flex;flex-direction:column;align-items:center;justify-content:center
 }
-
-/* INTRO */
-#intro{
-  position:fixed;
-  inset:0;
-  background:black;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:10;
-  animation:fadeOut 4s forwards;
-}
-#intro h1{
-  color:red;
-  font-size:40px;
-  text-shadow:0 0 20px orange,0 0 40px red;
-  animation:fire 1s infinite alternate;
-}
-@keyframes fire{
-  from{ text-shadow:0 0 10px red;}
-  to{ text-shadow:0 0 30px orange;}
-}
-@keyframes fadeOut{
-  0%,70%{opacity:1}
-  100%{opacity:0;visibility:hidden}
-}
-
-/* UI */
-button{
-  padding:10px;
-  margin:5px;
-  font-size:16px;
-}
-canvas{
-  background:#2b2b2b;
-  display:block;
-  margin:auto;
-  border:2px solid #444;
-}
-.panel{
-  background:#111;
-  padding:8px;
-  margin:5px;
-  border-radius:8px;
-}
+#admin,#game{display:none}
+.box{border:1px solid #555;padding:10px;margin:5px;width:90%}
 </style>
 </head>
-
 <body>
 
-<div id="intro"><h1>TRẠNH BÁ VÔ SONG</h1></div>
-
-<h2>Tranh Bá Vô Song</h2>
-
-<button onclick="mute()">Cài đặt (Âm thanh)</button>
-
-<div class="panel" id="info"></div>
-
-<canvas id="game" width="360" height="480"></canvas>
-
-<div class="panel">
-<button onclick="train('bo')">Huấn luyện Bộ binh</button>
-<button onclick="train('ky')">Huấn luyện Kỵ binh</button>
-<button onclick="upgradeHero()">Nâng cấp Nhân vật</button>
-<button onclick="attackCity()">Tấn công</button>
+<!-- LOGIN -->
+<div id="login">
+<h1 style="color:red">TRANH BÁ VÔ SONG</h1>
+<input id="user" placeholder="Tài khoản">
+<input id="pass" type="password" placeholder="Mật khẩu">
+<button onclick="login()">ĐĂNG NHẬP</button>
+<div id="msg"></div>
 </div>
 
-<audio id="click" src="https://cdn.pixabay.com/audio/2022/03/10/audio_2d68c8b6df.mp3"></audio>
-<audio id="war" src="https://cdn.pixabay.com/audio/2021/08/04/audio_3c6c81e95c.mp3"></audio>
+<!-- ADMIN PANEL -->
+<div id="admin">
+<h2>👑 ADMIN SERVER</h2>
+<div id="serverList"></div>
+<button onclick="addServer()">➕ Tạo server</button>
+<button onclick="resetServers()">🔄 Reset tất cả</button>
+<button onclick="logout()">Thoát</button>
+</div>
+
+<!-- GAME -->
+<div id="game">
+<h2>🎮 GAME ĐANG CHẠY</h2>
+<div id="info"></div>
+<button onclick="leave()">Rời server</button>
+</div>
 
 <script>
-/* ===== DATA ===== */
-let go=100, sat=50, vang=50;
-let bo=5, ky=2;
-let heroPower=10;
-let general={level:1, atk:5, hp:100};
+/* ==== ADMIN INFO ==== */
+const ADMIN_USER="Anhtuan2708@";
+const ADMIN_PASS="tuan2708@";
 
-let enemyCity=60;
+/* ==== DATA ==== */
+let servers = JSON.parse(localStorage.getItem("servers")) || [
+ {id:1,players:0,active:true}
+];
+let currentServer=null;
 
-/* ===== SAVE / LOAD ===== */
-function saveGame(){
-  localStorage.setItem("tranhba_save",JSON.stringify({
-    go,sat,vang,bo,ky,heroPower,general,enemyCity
-  }));
-}
-function loadGame(){
-  let s=localStorage.getItem("tranhba_save");
-  if(s){
-    let d=JSON.parse(s);
-    Object.assign(window,d);
-  }
-}
-
-/* ===== UI ===== */
-function updateUI(){
-  document.getElementById("info").innerHTML=
-  `🌲 Gỗ:${go} ⛓ Sắt:${sat} 💰 Vàng:${vang}<br>
-   🪖 Bộ:${bo} 🐎 Kỵ:${ky}<br>
-   👤 Sức mạnh:${heroPower} | 👑 Tướng ATK:${general.atk}`;
-}
-function play(id){document.getElementById(id).play();}
-function mute(){document.querySelectorAll("audio").forEach(a=>a.muted=!a.muted);}
-
-/* ===== ACTION ===== */
-function train(type){
-  play("click");
-  if(type=="bo" && go>=10){go-=10;bo++;}
-  if(type=="ky" && go>=20){go-=20;ky++;}
-  updateUI(); saveGame();
-}
-function upgradeHero(){
-  play("click");
-  if(vang>=10){
-    vang-=10;
-    heroPower+=2;
-    updateUI(); saveGame();
-  }
-}
-function armyPower(){
-  return bo*2 + ky*4 + heroPower + general.atk;
-}
-function attackCity(){
-  play("war");
-  if(armyPower()>enemyCity){
-    alert("🏆 Chiếm thành! Cướp tài nguyên");
-    go+=30; vang+=20;
-    enemyCity+=20;
-  }else{
-    alert("❌ Thất bại! Mất quân");
-    bo=Math.max(0,bo-2);
-  }
-  updateUI(); saveGame();
+/* ==== LOGIN ==== */
+function login(){
+ let u=user.value,p=pass.value;
+ if(u===ADMIN_USER && p===ADMIN_PASS){
+  login.style.display="none";
+  admin.style.display="flex";
+  renderServers();
+ }else{
+  joinServer();
+ }
 }
 
-/* ===== MAP ===== */
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-const tile=60;
-const mapW=6, mapH=8;
-let map=[];
-for(let y=0;y<mapH;y++){
-  map[y]=[];
-  for(let x=0;x<mapW;x++) map[y][x]=Math.floor(Math.random()*3);
+/* ==== SERVER LOGIC ==== */
+function renderServers(){
+ let html="";
+ servers.forEach(s=>{
+  html+=`<div class="box">
+   Server ${s.id} | 👥 ${s.players}/20 | ${s.active?"🟢":"🔴"}
+   <button onclick="closeServer(${s.id})">Đóng</button>
+  </div>`;
+ });
+ serverList.innerHTML=html;
+ localStorage.setItem("servers",JSON.stringify(servers));
 }
-let player={x:2,y:3};
 
-canvas.addEventListener("touchstart",e=>{
-  let t=e.touches[0];
-  let x=Math.floor((t.clientX-canvas.offsetLeft)/tile);
-  let y=Math.floor((t.clientY-canvas.offsetTop)/tile);
-  if(x>=0&&y>=0&&x<mapW&&y<mapH){player.x=x;player.y=y;}
-});
+function addServer(){
+ servers.push({id:servers.length+1,players:0,active:true});
+ renderServers();
+}
 
-function drawMap(){
-  for(let y=0;y<mapH;y++)for(let x=0;x<mapW;x++){
-    ctx.fillStyle=["#2e7d32","#757575","#c0a16b"][map[y][x]];
-    ctx.fillRect(x*tile,y*tile,tile,tile);
-    ctx.strokeRect(x*tile,y*tile,tile,tile);
-  }
+function closeServer(id){
+ let s=servers.find(x=>x.id===id);
+ if(s) s.active=false;
+ renderServers();
 }
-function drawPlayer(){
-  ctx.fillStyle="red";
-  ctx.beginPath();
-  ctx.arc(player.x*tile+30,player.y*tile+30,10,0,Math.PI*2);
-  ctx.fill();
-}
-function render(){
-  ctx.clearRect(0,0,360,480);
-  drawMap(); drawPlayer();
-}
-setInterval(render,1000/30);
 
-/* INIT */
-loadGame();
-updateUI();
-setInterval(saveGame,5000);
+function resetServers(){
+ if(!confirm("Reset toàn bộ server?"))return;
+ servers=[{id:1,players:0,active:true}];
+ renderServers();
+}
+
+/* ==== PLAYER JOIN ==== */
+function joinServer(){
+ let s=servers.find(x=>x.active && x.players<20);
+ if(!s) return alert("Không có server trống");
+ s.players++;
+ currentServer=s;
+ localStorage.setItem("servers",JSON.stringify(servers));
+ login.style.display="none";
+ game.style.display="flex";
+ info.innerText=`Đang ở Server ${s.id} (${s.players}/20)`;
+}
+
+/* ==== LEAVE ==== */
+function leave(){
+ currentServer.players--;
+ localStorage.setItem("servers",JSON.stringify(servers));
+ location.reload();
+}
+
+function logout(){
+ location.reload();
+}
 </script>
-
 </body>
 </html>
